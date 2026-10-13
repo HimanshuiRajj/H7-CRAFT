@@ -1,0 +1,334 @@
+<h1 align="center">H7-CRAFT</h1>
+
+<p align="center">
+  <b>2D-first architectural and civil drafting build based on CADCraft by the ArtCraft team.</b><br>
+  <a href="https://github.com/HimanshuiRajj"><b>GitHub profile: @HimanshuiRajj</b></a>
+</p>
+
+<p align="center">
+  H7-CRAFT focuses on precise 2D floor plans, editable dimensions and grips, robust trim/erase workflows,
+  and reusable residential symbols. This variant does not expose 3D modeling tools in its drafting UI.
+</p>
+
+> Attribution and licensing: H7-CRAFT is derived from CADCraft. Preserve the upstream MIT/Apache-2.0 notices,
+> `NOTICE`, `ATTRIBUTION.md`, and third-party licences. The ArtCraft branding assets are not open source and must
+> not be used to brand a modified version; this README intentionally uses a plain-text H7-CRAFT identity.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/ui-layout.png" alt="A paper-space layout in H7-CRAFT: a white sheet with a dashed printable area and a viewport showing the apartment plan at scale, the status bar showing the A1 Plan layout tab and a PAPER toggle"></td>
+    <td width="50%"><img src="docs/images/ui-bracket.png" alt="H7-CRAFT with a mounting bracket part drawing: front view with bolt holes, centre lines and dimensions, a hatched section view, notes and a title block"></td>
+  </tr>
+  <tr>
+    <td><sub><b>Layouts</b>: paper space with viewports, page setups and PLOT to PDF. Double-click a viewport to work in model space through it.</sub></td>
+    <td><sub><b>Mounting bracket</b>: a two-view part drawing with centre lines, hidden lines, an ANSI31 section hatch and a title block.</sub></td>
+  </tr>
+</table>
+
+
+## H7-CRAFT 2D upgrade notes
+
+- **Trim Segment (Anywhere)** (`TRIMSEGMENT`, aliases `TRSEG` / `TRIMSEGMENTANYWHERE`, shortcut `TS`) removes the part between two picked points without needing a cutting boundary. The first implementation supports lines, arcs, circles and open lightweight polylines. Both points must lie on the selected entity; unsupported geometry is rejected rather than approximated or silently damaged.
+- **Eraser / Erase** remains an explicit command and has been surfaced alongside Trim and Trim Segment in the desktop toolbar and Drafting Tool Sets.
+- Dimension text overrides and grip-based editing remain based on the existing engine/drawing model; a text override does not intentionally rewrite the geometry measurement.
+- Product-facing desktop, web and menu labels use **H7-CRAFT**. Rust crate names, environment variables, settings paths and other compatibility identifiers remain unchanged.
+- This is a focused first upgrade, not a claim that every item in the supplied 2D parity specification is complete. See `H7-CRAFT_IMPLEMENTATION_REPORT.md` for verified changes and remaining work.
+
+## Why H7-CRAFT
+
+- **The workflow you know.** Type `L`, click two points, type `@5<45`, press Enter. The command
+  line, prompts with clickable `[Keywords]`, AutoComplete, object snaps, polar tracking, ortho,
+  direct distance entry, window and crossing selection, grips, and right-click-to-repeat behave
+  the way decades of drafting habit expect.
+- **Open files.** DXF is read and written natively (ASCII and binary, R12 through 2018), and DWG
+  files (R13 through 2018) open and save through the open-source acadrust library. Export to SVG
+  and PNG today.
+- **Fast and native.** Pure Rust and egui, no Electron, no web view. One binary on macOS
+  (universal), Windows, Linux and FreeBSD, plus a WebAssembly build for the browser.
+- **Built for agents.** Every menu item, tool and prompt is a command. Agents can type at the
+  command line exactly like a person, call any command with JSON, inspect the drawing to verify
+  their work, and render it — over MCP, a JSON control channel, or the CLI.
+- **Free.** MIT OR Apache-2.0, with no account and no subscription.
+
+## What works today
+
+H7-CRAFT is a 2D-focused variant in active development. Honest status (see [ROADMAP.md](ROADMAP.md) for parity
+numbers):
+
+| Area | Status |
+|---|---|
+| Drawing area | Model space with adaptive grid, axes, pan/zoom (wheel, middle-drag, pinch), crosshair cursor with pickbox, UCS icon, ViewCube, viewport label |
+| Command line | Prompts with keywords, history, AutoComplete, aliases, `@dx,dy`, `@d<a`, `#x,y`, direct distance entry, Enter/space/right-click to repeat, transparent commands, `.scr`-style scripts |
+| Draw | LINE, PLINE (arcs, widths), CIRCLE (center/radius/diameter, 2P, 3P), ARC, RECTANG (fillet/chamfer), POLYGON, ELLIPSE (+arcs), SPLINE, POINT, XLINE, RAY, DONUT, TEXT, MTEXT |
+| Modify | ERASE, MOVE, COPY, ROTATE, SCALE, MIRROR, STRETCH, OFFSET, TRIM, EXTEND, FILLET, CHAMFER, BREAK, JOIN, EXPLODE, rectangular/polar ARRAY, draw order, OVERKILL |
+| Precision | Object snaps (endpoint, midpoint, center, geometric center, node, quadrant, intersection, insertion, perpendicular, tangent, nearest; deferred tangent/perpendicular for the first point of a line, e.g. belt lines tangent to two circles), polar tracking, ortho, grid snap |
+| Layers & properties | Layers palette and Layer Properties Manager (on/off, freeze, lock, plot, colour, linetype), layer tools (isolate, freeze, off, lock, match, previous), Properties palette with per-object editing, linetypes, lineweights, colour index and true colour |
+| Annotation | All DIM* commands with full DIMSTYLE variables, overrides and every arrowhead, associative dimensions that follow geometry, MLEADER, TABLE, TrueType fonts (`.ttf`, `.otf`, `.ttc` collections), MTEXT formatting codes (fonts, heights, colours, stacked fractions), our own single-stroke drafting font |
+| Hatch & blocks | Pick-point hatch boundaries with islands, pattern, solid and gradient fills from our own pattern library, BLOCK/INSERT, attributes and nested blocks |
+| Files | DXF read (R12–2018, ASCII and binary) and write (R2000), including dimension styles, associativity, tables and constraints; DWG read (via the acadrust library) and write (R2000); PDF plotting, SVG and PNG export. Entities the inherited CADCraft model does not yet support may not be kept on save: see [file-format parity](docs/file-format-parity.md) |
+| Layouts & plotting | Paper-space layouts, viewports (scale, lock, per-viewport layer freeze), MSPACE/PSPACE through viewports, page setups, PLOT and EXPORTPDF |
+| Parametric | Geometric and dimensional constraints, AUTOCONSTRAIN, PARAMETERS with expressions, conflict detection; constraints re-solve after every edit |
+| Grips | Hot grips with Space to cycle Stretch, Move, Rotate, Scale and Mirror |
+| Interface languages | English, Ukrainian (Українська), Brazilian Portuguese (Português (Brasil)), German (Deutsch), Spanish (Español), Czech (Čeština), Russian (Русский), French (Français), Simplified Chinese (简体中文, with an installed CJK font), Italian (Italiano), Korean (한국어, with an installed Hangul font), Swedish (Svenska) and Arabic (العربية, with an installed Arabic font), live switching and a remembered Auto/system-language choice; [details](docs/localization.md) |
+| Automation | MCP server, JSON control channel, `cadcraft-cli` (info, convert, run, commands, mcp) |
+
+## Quick start
+
+Desktop and web UI builds require Rust 1.95 or later. The core workspace's declared minimum
+remains Rust 1.90.
+
+```sh
+git clone https://github.com/storytold/cadcraft
+cd cadcraft-main
+cargo run --release -p cadcraft -- --sample       # opens the sample drawing
+```
+
+Then try typing at the command line:
+
+```text
+line 0,0 @10,0 @0,5 c          a closed triangle
+circle 5,2 1                    a circle
+offset 0.25                     then pick the circle and a side
+zoom e                          zoom to extents
+```
+
+The web build: `cd apps/cadcraft-web && trunk serve` (needs [trunk](https://trunkrs.dev)).
+
+### Fonts
+
+H7-CRAFT has no fonts in its repository; it uses the TrueType/OpenType fonts installed on your
+system. Builds made with the optional [craft-fonts](https://github.com/storytold/craft-fonts)
+input (`CRAFT_FONTS_DIR=<absolute path to a checkout> cargo build --release`) also embed its
+fonts: BIZ UDPGothic, BIZ UDMincho and Shippori Mincho (Japanese) and Noto Sans Arabic (the web
+build, which has no system fonts, only BIZ UDPGothic Regular and Noto Sans Arabic). A text style
+can use them by family name, and they draw characters a text's font lacks when no installed
+wide-coverage CJK font has them. Without `CRAFT_FONTS_DIR` nothing is embedded. SHX
+fonts (including big fonts such as `chineset.shx`) aren't read yet: text in an SHX style is drawn
+with our own stroke font, and any character a text's font lacks (CJK, for example) is drawn from
+an installed font that has it, preferring wide-coverage fonts such as Noto Sans CJK, Source Han
+Sans, WenQuanYi, PingFang or Microsoft JhengHei. Two settings, set with `SETVAR` or (for every
+run) an environment variable, steer this:
+
+| Variable | Environment | Meaning |
+|---|---|---|
+| `FONTALT` | `CADCRAFT_FONTALT` | Font used instead of a text style font that can't be found (an SHX file, a missing TTF), by file or family name, e.g. `Noto Sans CJK TC`. Empty (default) = our stroke font. |
+| `FONTFALLBACK` | `CADCRAFT_FONTFALLBACK` | Fonts tried first for characters a text's font lacks, comma-separated, e.g. `Noto Sans CJK TC, msjh.ttc`. |
+
+`.` clears either one.
+
+**Your own fonts.** Any `.ttf`, `.otf` or `.ttc` font works: install it in the system font folder
+(Windows `C:\Windows\Fonts` or per-user fonts, macOS `/Library/Fonts` or `~/Library/Fonts`,
+Linux and the BSDs `/usr/share/fonts`, `/usr/local/share/fonts`, `~/.local/share/fonts` or
+`~/.fonts`) and name it in a text style (`STYLE`, or `style {"name":"FA","font":"Vazirmatn"}`)
+by file name (`Vazirmatn-Regular.ttf`) or family name (`Vazirmatn`), or inline in MTEXT with
+`\fVazirmatn;`. Restart H7-CRAFT after installing a font: the font folders are scanned once.
+
+**Right-to-left text (Persian, Arabic, Urdu, Hebrew).** TEXT and MTEXT lines are laid out with the
+Unicode Bidirectional Algorithm (the paragraph direction comes from its first letter, so numbers
+and Latin words inside Persian text keep their own order), and Arabic-script text is shaped with
+OpenType (contextual letter forms, lam-alef and other ligatures, ZWNJ / ZWJ, mark positioning).
+Justification (left, centre, right, MTEXT attachment and wrapping) still refers to the text's box.
+Our stroke font has no Arabic letters, so Persian in a stroke-font style is drawn from an
+installed font that has them: Vazirmatn, Noto Naskh Arabic, Noto Sans Arabic, Segoe UI, Tahoma,
+Arial and DejaVu Sans are looked for first. To choose the font, install a free Persian font such
+as [Vazirmatn](https://github.com/rastikerdar/vazirmatn) (SIL Open Font License) and either use it
+in the text style or set `FONTFALLBACK` (`CADCRAFT_FONTFALLBACK="Vazirmatn"`). Formatting changes
+inside a word (an MTEXT colour change in the middle of a Persian word) break the joining at that
+point.
+
+### Logs
+
+The desktop app writes its `log` records to standard error and to `logs/cadcraft.log` in the
+settings directory (Linux and the BSDs `~/.config/cadcraft/logs/`, or
+`$XDG_CONFIG_HOME/cadcraft/logs/`; macOS `~/Library/Application Support/CADCraft/logs/`; Windows
+`%APPDATA%\CADCraft\logs\`; or under `CADCRAFT_CONFIG_DIR`). A start from a desktop menu or the
+Dock has no terminal, so this file is what to attach to a bug report. Each launch moves the
+previous log to `cadcraft.1.log` (and that one to `cadcraft.2.log`), so the log of a run that
+crashed survives the next start. The file stops growing at 16 MiB. `--version` writes no file.
+
+| Variable | Effect |
+|---|---|
+| `CADCRAFT_CONFIG_DIR` | Use this directory instead of the platform settings directory (the log goes to its `logs/`) |
+| `RUST_LOG` | Log levels for standard error and the log file. Default: `info` for CADCraft's own crates, `warn` for everything else. env_logger-style directives replace that, e.g. `RUST_LOG=debug`, `RUST_LOG=warn,cadcraft_io=trace` or `RUST_LOG=info,wgpu_core=warn`; a directive ending in `*` covers every target starting with it (`cadcraft*=debug`). `cadcraft_engine=debug` also logs every command-line message. |
+
+The logger is `apps/cadcraft/src/logging.rs`; the web build logs to the browser console instead.
+
+## Drive it from agents, MCP and the CLI
+
+```sh
+# MCP server on stdio, headless:
+cadcraft-cli mcp
+# …or bridged to the running app (start it with --control 7979):
+cadcraft-cli mcp --connect 127.0.0.1:7979
+
+# One-shot headless runs:
+cadcraft-cli run --sample --script 'CIRCLE 22,3 1\n' --save out.dxf --export out.png
+cadcraft-cli info drawing.dxf
+cadcraft-cli convert drawing.dxf drawing.svg
+
+# Frame part of the drawing (model space, drawing units, lower-left corner first):
+cadcraft-cli convert drawing.dwg detail.png --window 0,0,20000,15000
+cadcraft-cli run drawing.dwg --cmd 'zoom {"mode":"window","p1":[0,0],"p2":[20000,15000]}' --export detail.png
+cadcraft-cli run drawing.dwg --cmd 'select {"window":[[0,0],[20000,15000]]}' --cmd 'zoom {"mode":"object"}' --export sel.png
+```
+
+How image exports (PNG 2400×1600, SVG, PDF) are framed: `convert` fits the model-space extents.
+`run --export` shows the current view when the script or commands changed it (`zoom`, `pan`,
+`view.set`, …) and otherwise fits the extents too. `--window x0,y0,x1,y1` shows exactly that
+rectangle, centred and scaled without distortion; `--view extents` or `--view current` forces
+either framing. To frame a selection set, `zoom {"mode":"object"}` after selecting.
+
+MCP tools include `command_line` (type at the prompt), `execute` (any command with JSON),
+`inspect_drawing`, `query_entities`, `render` (returns a PNG) and, when connected to the app,
+`screenshot` and `ui_click`. The desktop app's JSON control channel is documented in
+[docs/control-protocol.md](docs/control-protocol.md).
+
+## Architecture
+
+```text
+geom ─┐                       f64 geometry: arcs, bulges, splines, intersections, offsets
+dxf   │  (standalone)         DXF tag reader/writer
+color ┤                       colour index, true colour
+doc   ┤                       drawing database, copy-on-write entity store (cheap undo)
+fonts ┤ render               stroke font + TEXT/MTEXT layout │ display lists, linetypes, hatches, dims, CPU raster
+io    ┤                       DXF mapping, SVG/PNG export
+engine┤                       sessions, commands, command line + prompts, snaps, selection, undo
+ui-egui · mcp                 the swappable egui front end · MCP server
+apps: cadcraft · cadcraft-cli · cadcraft-web
+```
+
+Nothing below `ui-egui` knows about egui, so the front end can be replaced. `cargo xtask ci`
+checks formatting, clippy, tests, asset attribution, the crate layering and the wasm build.
+
+Drafting and layer-palette icon buttons use the pinned `craft-ui` button component for interaction,
+accessible labels and keyboard focus. H7-CRAFT keeps its multicolor icon painter, dark palette,
+disabled tint and tool commands. The native host saves workspace visibility and toolset choices
+atomically; `CADCRAFT_CONFIG_DIR` selects an isolated profile. Compact toolbar groups move into a
+More menu, and status readouts truncate with a full-value tooltip before they reach layout tabs.
+Painted toolbar and tab controls
+have accessible labels and visible keyboard focus. Property controls remain application-specific.
+
+## Accessibility
+
+### System cursor
+
+Over the drawing area H7-CRAFT hides the system cursor and draws its own crosshair. Tools that follow the system cursor (Windows Magnifier set to follow or centre the mouse pointer, other screen magnifiers, screen recorders, remote desktops) lose track of it there. Turn on **View ▸ Accessibility ▸ Show System Cursor** to keep a small system crosshair visible at the centre of the drawn one, or start H7-CRAFT with the environment variable `CADCRAFT_SYSTEM_CURSOR=1` (on Windows, set it once with `setx CADCRAFT_SYSTEM_CURSOR 1` and start H7-CRAFT again). Agents can switch it with the control channel: `ui.set {"systemCursor": true}`.
+
+### Animation effects
+
+H7-CRAFT follows the operating system's animation setting. When the system is set to show no animations, dialogs, menus and tooltips appear at once instead of fading in, collapsing sections and scroll bars change at once, and the mouse wheel scrolls lists a whole step at a time instead of gliding. Zooming the drawing with the wheel always moves a whole step; with Ctrl held (a touchpad pinch, on Windows) it glides to the new zoom only while animation effects show.
+
+| System | Where the setting is |
+|---|---|
+| Windows | Settings ▸ Accessibility ▸ Visual effects ▸ Animation effects |
+| macOS | System Settings ▸ Accessibility ▸ Reduce motion |
+| Linux, BSD | the desktop's reduced-motion (or animations) setting, read through the XDG Desktop Portal |
+| Web | the browser's `prefers-reduced-motion` |
+
+A change to the system setting is picked up while CADCraft runs, within a few seconds. To choose for CADCraft alone, use **View ▸ Accessibility ▸ Animation Effects**: **Use System Setting** (the default), **On** or **Off**. Options ▸ Display has the same choice. Agents can set it with the control channel: `ui.set {"animations": "off"}` (`"system"`, `"on"` or `"off"`), and `ui.inspect` reports whether animations show (`animations`).
+
+Drafting feedback is not an animation effect and stays as it is: rubber bands and previews, snap markers, the pause that acquires an object snap tracking point, the text cursor's blink, the spinner shown while a drawing opens, and pan and zoom, which follow the pointer and the wheel directly.
+
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for the stage, measured parity and the estimate of remaining work, and [docs/gaps.md](docs/gaps.md) for everything still missing.
+
+## Downloads
+
+**Build H7-CRAFT locally** using the Quick start instructions above. Upstream release binaries are CADCraft releases and are not H7-CRAFT-branded builds.
+
+### Windows
+
+| Build | Installer | Portable |
+|---|---|---|
+| x64 (64-bit Intel/AMD) | `cadcraft-<ver>-windows-x64.msi` | `cadcraft-<ver>-windows-x64-portable.zip` |
+| arm64 (Snapdragon and other ARM PCs) | `cadcraft-<ver>-windows-arm64.msi` | `cadcraft-<ver>-windows-arm64-portable.zip` |
+| x86 (32-bit) | `cadcraft-<ver>-windows-x86.msi` | `cadcraft-<ver>-windows-x86-portable.zip` |
+
+Installers and executables are code-signed.
+
+The inherited packaging scripts still emit CADCraft-named installers and platform registrations. They are not yet H7-CRAFT-branded release packages; use the source build until installer metadata and original H7-CRAFT icon assets have been updated and verified.
+
+**If the app doesn't open on Windows:** the desktop app initializes only DirectX 12 by default.
+Letting wgpu also create an OpenGL instance can crash some graphics drivers (AMD's
+`atio6axx.dll`) before the window appears, so the app would flash in Task Manager and quit.
+`WGPU_BACKEND` overrides the default for troubleshooting (for example `dx12` or `vulkan`). In
+PowerShell, from the folder containing the executable:
+
+```powershell
+$env:WGPU_BACKEND = "vulkan"
+& .\cadcraft.exe
+Remove-Item Env:WGPU_BACKEND                     # restore the default for later launches
+```
+
+An explicit `gl` override can bring the driver crash back on affected systems. The macOS, Linux
+and web backend defaults are unchanged.
+
+### macOS
+
+| Build | File | Notes |
+|---|---|---|
+| App, universal (Apple silicon + Intel) | `cadcraft-<ver>-macos-universal.dmg` | Signed and notarized |
+| Command-line tool, universal | `cadcraft-cli-<ver>-macos-universal.zip` | Signed and notarized |
+
+### Linux
+
+| Format | x86_64 | aarch64 (ARM64) | Notes |
+|---|---|---|---|
+| AppImage | `cadcraft-<ver>-linux-x86_64.AppImage` | `cadcraft-<ver>-linux-aarch64.AppImage` | Runs anywhere; updates itself with [AppImageUpdate](https://github.com/AppImageCommunity/AppImageUpdate) (`.zsync` files) |
+| Flatpak | `cadcraft-<ver>-linux-x86_64.flatpak` | `cadcraft-<ver>-linux-aarch64.flatpak` | Sandboxed; `flatpak install --user <file>` |
+| Debian/Ubuntu | `cadcraft-<ver>-linux-x86_64.deb` | `cadcraft-<ver>-linux-aarch64.deb` | |
+| Fedora/RHEL/openSUSE | `cadcraft-<ver>-linux-x86_64.rpm` | `cadcraft-<ver>-linux-aarch64.rpm` | |
+| Tarball | `cadcraft-<ver>-linux-x86_64.tar.gz` | `cadcraft-<ver>-linux-aarch64.tar.gz` | Unpack anywhere |
+
+RISC-V (riscv64): `cadcraft-<ver>-linux-riscv64.tar.gz`, cross-compiled; needs glibc 2.39 or newer (Ubuntu 24.04+, Debian 13+).
+
+### FreeBSD
+
+| Build | File |
+|---|---|
+| x86_64 | `cadcraft-<ver>-freebsd-x86_64.tar.gz` |
+
+### Web (WebAssembly)
+
+| Build | File | Notes |
+|---|---|---|
+| Static site | `cadcraft-web-<ver>.zip` | Runs in a modern browser; host it on any static server |
+
+## Project origin and attribution
+
+H7-CRAFT is a 2D-focused fork/variant of CADCraft. It is maintained separately and is not an official
+ArtCraft product. The upstream project and its other crafting apps are credited below for provenance only.
+
+| | App | What it's for | Code | Learn more |
+|:-:|---|---|---|---|
+| <img src="https://raw.githubusercontent.com/storytold/photocraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.photocraft.png" alt="" width="32" height="32"> | **PhotoCraft** | Image editing: layers, masks, type and real PSD files | [GitHub](https://github.com/storytold/photocraft) | [Website](https://getartcraft.com/apps/photocraft) |
+| <img src="https://raw.githubusercontent.com/storytold/vectorcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.vectorcraft.png" alt="" width="32" height="32"> | **VectorCraft** | Vector illustration | [GitHub](https://github.com/storytold/vectorcraft) | [Website](https://getartcraft.com/apps/vectorcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/filmcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.filmcraft.png" alt="" width="32" height="32"> | **FilmCraft** | Video editing, color and sound | [GitHub](https://github.com/storytold/filmcraft) | [Website](https://getartcraft.com/apps/filmcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/lightcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.lightcraft.png" alt="" width="32" height="32"> | **LightCraft** | Photo library and raw development | [GitHub](https://github.com/storytold/lightcraft) | [Website](https://getartcraft.com/apps/lightcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/pdfcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.pdfcraft.png" alt="" width="32" height="32"> | **PdfCraft** | Reading, organizing and protecting PDFs | [GitHub](https://github.com/storytold/pdfcraft) | [Website](https://getartcraft.com/apps/pdfcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/effectcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.effectcraft.png" alt="" width="32" height="32"> | **EffectCraft** | Motion graphics and visual effects | [GitHub](https://github.com/storytold/effectcraft) | [Website](https://getartcraft.com/apps/effectcraft) |
+| <img src="https://raw.githubusercontent.com/storytold/designcraft/main/assets/app-icon/hicolor/64x64/apps/ai.storyteller.designcraft.png" alt="" width="32" height="32"> | **DesignCraft** | Page layout and publishing | [GitHub](https://github.com/storytold/designcraft) | [Website](https://getartcraft.com/apps/designcraft) |
+| **H7-CRAFT** | **2D architectural and civil drafting · this fork** | [Maintainer profile](https://github.com/HimanshuiRajj) | Based on [CADCraft](https://github.com/storytold/cadcraft) |
+
+For upstream source, see [CADCraft by ArtCraft](https://github.com/storytold/cadcraft). H7-CRAFT is not sponsored by or endorsed by the upstream maintainers.
+
+## License and credits
+
+CADCraft is dual-licensed under [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE), at your option.
+Copyright (c) 2026 ArtCraft Team and the CADCraft contributors. Required notices are in [NOTICE](NOTICE).
+
+Bundled fonts, icons, images and other assets keep their own open licenses; each one is listed
+with its author, source and license in [ATTRIBUTION.md](ATTRIBUTION.md).
+
+The inherited geometry kernel, drawing data model, icons, drafting font, hatch patterns and linetypes were
+originally created for CADCraft. Preserve their attribution as listed in `ATTRIBUTION.md` and `NOTICE`.
+The ArtCraft name, wordmark and logo assets are trademarks and not open source. Modified versions must
+remove those marks; H7-CRAFT uses a plain-text identity and does not claim upstream sponsorship.
+
+<sub>Autodesk, AutoCAD and DWG are trademarks or registered trademarks of Autodesk, Inc. H7-CRAFT is an
+independent project based on CADCraft and is not affiliated with or endorsed by Autodesk.</sub>
+
+Tool Sets, Layers, and Properties can be regrouped, split, floated within the app window, closed, and reopened. The drawing canvas stays visible and cannot be closed or turned into a tab. Drag a panel header to a target edge or another header. Its context menu offers Float panel, Move to group, and Close panel. Existing panel toggles reopen panels at their saved location; Reset Panel Layout restores the app layout. Floating panels remain inside the current app window.
